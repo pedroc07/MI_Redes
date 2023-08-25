@@ -1,6 +1,8 @@
 import socket
+import os
+
 # ip público caso não seja a mesma máquina
-def client(host = '192.168.42.137', port=8099): 
+def client(host = 'localhost', port=8099):
     # protocolo tcp
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     print (f"Conectando ao {host} port {port}") 
