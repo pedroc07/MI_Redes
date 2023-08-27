@@ -49,32 +49,25 @@ def deleta_produto(produto_id:int):
 
     return produto
 
-ligado=True
+host = 'localhost'
+port=8099
+max_dados = 2048 #Máximo de dados recebidos de uma vez
+# protocolo TCP
+sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
+print (f"Esperando por uma mensagem em {host}, {port}")
+sock.bind((host, port))
+max_conexoes = 5
+sock.listen(max_conexoes)
 
-def contador():
-    cont = 0
-    while ligado:
-        time.sleep(1)
-        cont += 1
-        print(cont)
+def connect(cliente):
+    msg = cliente.recv(max_dados).decode('utf-8')
+    print(f"Produto de ID {msg} detectado")
+    produto = get_produto(int(msg))
+    cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
+    cliente.close()
 
-def server(thread, host = 'localhost', port=8099):
-    max_dados = 2048 #Máximo de dados recebidos de uma vez
-    # protocolo TCP
-    sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
-    print (f"Thread: {thread} Esperando por uma mensagem em {host}, {port}")
-    sock.bind((host, port))
-    max_conexoes = 5
-    sock.listen(max_conexoes) 
-    while True:
-        cliente, cliente_end = sock.accept()
-        print(f"Conectado a {cliente_end}")
-        threading.Thread(target=server, args=("2")).start()
-        msg = cliente.recv(max_dados).decode('utf-8')
-        print(f"Produto de ID {msg} detectado")
-        produto = get_produto(int(msg))
-        cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
-        cliente.close()
-
-
-threading.Thread(target=server, args=("1")).start()
+while True:
+    cliente, cliente_end = sock.accept()
+    print(f"Conectado a {cliente_end}")
+    t1 = threading.Thread(target=connect, args=(cliente,))
+    t1.start()
