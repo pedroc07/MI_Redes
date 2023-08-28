@@ -7,7 +7,7 @@ import threading
 import time
 
 class Produto(BaseModel):
-    id: int 
+    id: str 
     nome: str
     preco: float
 
@@ -21,7 +21,7 @@ def get_produtos():
     return produtos'''
 
 @app.get('/produto/{produto_id}')
-def get_produto(produto_id:int):
+def get_produto(produto_id:str):
     produto = [p for p in produtos if p['id'] == produto_id]
     return produto[0] if len(produto) > 0 else {}
 
@@ -40,7 +40,7 @@ def novo_produto(nome, preco):
     return produto_novo
 
 @app.delete('/DeleteProduto/{produto_id}')
-def deleta_produto(produto_id:int):
+def deleta_produto(produto_id:str):
     produto = [p for p in produtos if p['id'] == produto_id]
     if len(produto) > 0:
         produtos.remove(produto[0])
@@ -62,7 +62,7 @@ sock.listen(max_conexoes)
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
     print(f"Produto de ID {msg} detectado")
-    produto = get_produto(int(msg))
+    produto = get_produto(msg)
     cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
     cliente.close()
 

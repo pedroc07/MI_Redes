@@ -1,7 +1,5 @@
 import socket
-import os
-import time
-
+from read.py import retorna_tags()
 # ip público caso não seja a mesma máquina
 def client(host = 'localhost', port=8099):
     # protocolo tcp
@@ -9,7 +7,7 @@ def client(host = 'localhost', port=8099):
     print (f"Conectando ao {host} port {port}") 
     sock.connect((host, port))
     try: 
-        mensagem = "3" 
+        mensagem = "E20000172211011118905471"
         print (f"Enviando {mensagem}") 
         sock.send(mensagem.encode('utf-8')) 
         data = sock.recv(2048) 
