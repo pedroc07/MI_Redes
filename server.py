@@ -10,15 +10,12 @@ class Produto(BaseModel):
     id: str 
     nome: str
     preco: float
+    estoque: int
 
 app = FastAPI()
 
 with open('produtos.json', 'r') as arq:
     produtos = json.load(arq)
-
-'''@app.get('/produtos')
-def get_produtos():
-    return produtos'''
 
 @app.get('/produto/{produto_id}')
 def get_produto(produto_id:str):
@@ -26,12 +23,13 @@ def get_produto(produto_id:str):
     return produto[0] if len(produto) > 0 else {}
 
 @app.post('/NovoProduto', status_code=201)
-def novo_produto(nome, preco):
+def novo_produto(nome, preco, estoque=0):
     produto_id = max(p['id'] for p in produtos) + 1
     produto_novo = {
         "id": produto_id,
         "nome": nome,
-        "preco": preco
+        "preco": preco,
+        "estoque": estoque
     }
     produtos.append(produto_novo)
     with open('produtos.json', 'w') as arq:
@@ -58,6 +56,7 @@ print (f"Esperando por uma mensagem em {host}, {port}")
 sock.bind((host, port))
 max_conexoes = 5
 sock.listen(max_conexoes)
+bloqueados = []
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
@@ -68,6 +67,9 @@ def connect(cliente):
 
 while True:
     cliente, cliente_end = sock.accept()
+    for b in bloqueados:
+        if b == cliente_end:
+            cliente.close()
     print(f"Conectado a {cliente_end}")
     t1 = threading.Thread(target=connect, args=(cliente,))
     t1.start()
