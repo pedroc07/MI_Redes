@@ -1,5 +1,5 @@
 import socket
-from leitor.py import retorna_tags
+from leitor import retorna_tags
 # ip público caso não seja a mesma máquina
 def client(host = 'localhost', port=8099):
     # protocolo tcp
