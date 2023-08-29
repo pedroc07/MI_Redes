@@ -1,5 +1,5 @@
 import socket
-from read.py import retorna_tags()
+from read.py import retorna_tags
 # ip público caso não seja a mesma máquina
 def client(host = 'localhost', port=8099):
     # protocolo tcp
@@ -7,11 +7,12 @@ def client(host = 'localhost', port=8099):
     print (f"Conectando ao {host} port {port}") 
     sock.connect((host, port))
     try: 
-        mensagem = "E20000172211011118905471"
-        print (f"Enviando {mensagem}") 
-        sock.send(mensagem.encode('utf-8')) 
-        data = sock.recv(2048) 
-        print (f"Mensagens recebidas: {data.decode('utf-8')}") 
+        tags = retorna_tags()
+        for mensagem in tags:
+            print (f"Enviando {mensagem}") 
+            sock.send(mensagem.encode('utf-8')) 
+            data = sock.recv(2048) 
+            print (f"Mensagens recebidas: {data.decode('utf-8')}") 
     except socket.error as e: 
         print (f"Socket error: {e}") 
     except Exception as e: 
