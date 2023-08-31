@@ -67,9 +67,9 @@ def connect(cliente):
 
 while True:
     cliente, cliente_end = sock.accept()
-    for b in bloqueados:
+    '''for b in bloqueados:
         if b == cliente_end:
-            cliente.close()
+            cliente.close()'''
     print(f"Conectado a {cliente_end}")
     t1 = threading.Thread(target=connect, args=(cliente,))
     t1.start()
