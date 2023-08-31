@@ -4,7 +4,6 @@ import json
 from typing import *
 import socket
 import threading
-import time
 
 class Produto(BaseModel):
     id: str 
@@ -27,6 +26,23 @@ def novo_produto(nome, preco, estoque=0):
     produto_id = max(p['id'] for p in produtos) + 1
     produto_novo = {
         "id": produto_id,
+        "nome": nome,
+        "preco": preco,
+        "estoque": estoque
+    }
+    produtos.append(produto_novo)
+    with open('produtos.json', 'w') as arq:
+        json.dump(produtos, arq)
+
+    return produto_novo
+
+@app.put('/EditaProduto', status_code=202)
+def edita_produto(produto_id:str, nome, preco, estoque=0):
+    produto = [p for p in produtos if p['id'] == produto_id]
+    if len(produto) > 0:
+        produtos.remove(produto[0])
+    produto_novo = {
+        "id": produto[0],
         "nome": nome,
         "preco": preco,
         "estoque": estoque
@@ -60,9 +76,13 @@ bloqueados = []
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
-    print(f"Produto de ID {msg} detectado")
-    produto = get_produto(msg)
-    cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
+    if msg[0] == 'R':   
+        print(f"Produto de ID {msg} detectado")
+        produto = get_produto(msg)
+        cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
+    elif msg[0] == 'W':
+        edita_produto(msg, produto[1], produto[2], produto[3]-1)
+        print(f"{produto[1]} foi comprado")
     cliente.close()
 
 while True:
