@@ -30,28 +30,15 @@ def retorna_tags():
 
     return tags'''
 
+
 host = 'localhost'
 port=8077
 max_dados = 2048 #Máximo de dados recebidos de uma vez
-# protocolo TCP
-sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
-print (f"Esperando por uma solicitação em {host}, {port}")
-sock.bind((host, port))
-max_conexoes = 100
-sock.listen(max_conexoes)
-
-
-def connect(cliente):
-    msg = cliente.recv(max_dados).decode('utf-8')
-    tags = retorna_tags()
-    tags = ["E20000172211011718905474", "E20000172211010218905459", "E2000017221100961890544A"]
-    for tag in tags:
-        cliente.send(tag.encode('utf-8'))
-        print(f"Enviando tag {tag}")
-    cliente.close()
-
-while True:
-    cliente, cliente_end = sock.accept()
-    print(f"Conectado a {cliente_end}")
-    t1 = threading.Thread(target=connect, args=(cliente,))
-    t1.start()
+tags = retorna_tags()
+tags = ["E20000172211011718905474", "E20000172211010218905459", "E2000017221100961890544A", "END"]
+for tag in tags:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    sock.connect((host, port))
+    sock.send(tag.encode('utf-8'))
+    print(f"Enviando tag {tag}")
+sock.close()

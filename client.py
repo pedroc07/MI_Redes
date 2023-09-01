@@ -3,9 +3,31 @@ import socket
 # ip público caso não seja a mesma máquina
 #host = '172.16.103.3'
 def client(host = 'localhost', port=8102):
+    tags = []
+    lido = False
+    while not lido:
+        # LENDO O ID DAS TAGS
+        max_dados = 2048 #Máximo de dados recebidos de uma vez
+        # protocolo TCP
+        server = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
+        server.bind((host, 8077))
+        max_conexoes = 100
+        server.listen(max_conexoes)
+        cliente, cliente_end = server.accept()
+        print(f"Conectado a {cliente_end}")
+        data = cliente.recv(max_dados)
+        data = data.decode('utf-8')
+        if data == "END":
+            lido = True
+        else:
+            tags.append(data)
+        cliente.close()
+    print("Tags escaneadas com sucesso")
+    print(tags)
+    server.close()
     compras = ""
     try: 
-        tags = ["E20000172211011718905474", "E20000172211010218905459", "E2000017221100961890544A"]
+        # ENVIANDO TAGS PRO SERVIDOR
         for mensagem in tags:
             # protocolo tcp
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
