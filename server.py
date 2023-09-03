@@ -11,33 +11,72 @@ class Produto(BaseModel):
     preco: float
     estoque: int
 
-app = FastAPI()
 
 with open('produtos.json', 'r') as arq:
     produtos = json.load(arq)
 
-@app.get('/produto/{produto_id}')
-def get_produto(produto_id:str):
+def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
+    response_protocol = "HTTP/1.1"
+    response_status_code = status_code
+    response_status_text = status_text
+    response_content_type = "application/json; encoding=utf8"
+    response_connection = "close"
+    message_body_bytes = msg.encode('utf-8')
+    response_content_length = len(message_body_bytes)
+
+    # Create seções
+    status_line = f"{response_protocol} {response_status_code} {response_status_text}\r\n"
+    connection = f"Connection: {response_connection}\r\n"
+    content_type = f"Content-Type: {response_content_type}\r\n"
+    content_length = f"Content-Length: {response_content_length}\r\n"
+    empty_line = "\r\n"
+
+    # Concatenar string
+    response_header = (
+        status_line +
+        connection +
+        content_type +
+        content_length +
+        empty_line
+    )
+
+    # Concatenar header e corpo da mensagem
+    response = response_header.encode('utf-8') + message_body_bytes
+
+    return response
+
+# GET
+def get_byid(produto_id:str):
     produto = [p for p in produtos if p['id'] == produto_id]
     return produto[0] if len(produto) > 0 else {}
 
-@app.post('/NovoProduto', status_code=201)
-def novo_produto(nome, preco, estoque=0):
-    produto_id = max(p['id'] for p in produtos) + 1
+def do_GET(produto_id:str):
+    produto = get_byid(produto_id)
+    if produto:
+        response_body = json.dumps(produto)
+        return cria_headers(200, "OK", response_body)
+    else:
+        return cria_headers(404, "Not Found")
+
+# POST
+def do_POST(produto):
+    print(produto)
+    p = json.loads(produto)
     produto_novo = {
-        "id": produto_id,
-        "nome": nome,
-        "preco": preco,
-        "estoque": estoque
+            "id": p['id'],
+            "nome": p['nome'],
+            "preco": p['preco'],
+            "estoque": p['estoque']
     }
     produtos.append(produto_novo)
     with open('produtos.json', 'w') as arq:
         json.dump(produtos, arq)
+        
+    response_body = json.dumps({"status": "ok"})
+    return cria_headers(200, "OK", response_body)
 
-    return produto_novo
-
-@app.put('/EditaProduto', status_code=202)
-def edita_produto(produto: Produto):
+# PUT
+def do_PUT(produto: list):
     produto_novo = {
         "id": produto['id'],
         "nome": produto['nome'],
@@ -51,15 +90,18 @@ def edita_produto(produto: Produto):
     with open('produtos.json', 'w') as arq:
         json.dump(produtos, arq)
 
-@app.delete('/DeleteProduto/{produto_id}')
-def deleta_produto(produto_id:str):
-    produto = [p for p in produtos if p['id'] == produto_id]
+# DELETE
+def do_DELETE(produto_id:str):
+    produto = get_byid(produto_id)
     if len(produto) > 0:
-        produtos.remove(produto[0])
+        produtos.remove(produto)
         with open('produtos.json', 'w') as arq:
             json.dump(produtos, arq)
+        response_body = json.dumps({"status": "ok"})
+        return cria_headers(200, "OK", response_body)
+    else:
+        return cria_headers(404, "Not Found")
 
-    return produto
 #host = socket.gethostbyname(socket.gethostname())
 host = 'localhost'
 port=8102
@@ -74,24 +116,27 @@ bloqueados = []
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
-    if msg[0] == 'R':  
-        msg = msg[1:]
-        print(f"Produto de ID {msg} detectado")
-        produto = get_produto(msg)
-        cliente.send(("Produto identificado:" + str(produto)).encode('utf-8'))
-    elif msg[0] == 'W':
-        msg = msg[1:]
-        produto = get_produto(msg)
-        produto['estoque'] -= 1
-        edita_produto(produto)
-        print(f"{produto['nome']} foi comprado")
+    if msg[0:3] == 'GET':  
+        print(f"Produto de ID {msg[5:29]} detectado")
+        res = do_GET(msg[5:29])
+        cliente.send(res)
+    elif msg[0:3] == 'PUT':
+        res = do_PUT(msg)
+        cliente.send(res)
+    elif msg[0:4] == 'POST':
+        res = do_POST(msg[137:])
+        cliente.send(res)
+    elif msg[0:6] == 'DELETE':
+        res = do_DELETE(msg[8:32])
+        cliente.send(res)
+        print(f"Produto de ID {msg[8:32]} deletado.")
     cliente.close()
 
 while True:
     cliente, cliente_end = sock.accept()
-    '''for b in bloqueados:
+    for b in bloqueados:
         if b == cliente_end:
-            cliente.close()'''
+            cliente.close()
     print(f"Conectado a {cliente_end}")
     t1 = threading.Thread(target=connect, args=(cliente,))
     t1.start()

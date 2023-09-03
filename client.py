@@ -4,6 +4,7 @@ import socket
 #host = '172.16.103.3'
 def client(host = 'localhost', port=8102):
     tags = []
+    '''
     lido = False
     while not lido:
         # LENDO O ID DAS TAGS
@@ -25,7 +26,9 @@ def client(host = 'localhost', port=8102):
     print("Tags escaneadas com sucesso")
     print(tags)
     server.close()
+    '''
     compras = ""
+    tags = ["E20000172211011718905474", "E20000172211010218905459", "E2000017221100961890544A"]
     try: 
         # ENVIANDO TAGS PRO SERVIDOR
         for mensagem in tags:
@@ -34,10 +37,11 @@ def client(host = 'localhost', port=8102):
             print (f"Conectando ao {host} port {port}\n ") 
             sock.connect((host, port))
             print (f"Enviando {mensagem}\n")
-            mensagem = "R" + mensagem
+            mensagem = f"GET /{mensagem} HTTP/1.1\r\nHost: localhost:8102\r\n\r\n"
             sock.send(mensagem.encode('utf-8')) 
             data = sock.recv(2048)
             compras += data.decode('utf-8') + "\n"
+            
     except socket.error as e: 
         print (f"Socket error: {e}") 
     except Exception as e: 
