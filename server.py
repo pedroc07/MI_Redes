@@ -1,4 +1,3 @@
-from fastapi import FastAPI
 from pydantic import *
 import json
 from typing import *
@@ -112,8 +111,7 @@ def do_DELETE(produto_id:str):
     else:
         return cria_headers(404, "Not Found")
 
-#host = socket.gethostbyname(socket.gethostname())
-host = 'localhost'
+host = socket.gethostbyname(socket.gethostname())
 port=8102
 max_dados = 2048 #Máximo de dados recebidos de uma vez
 # protocolo TCP
@@ -122,18 +120,21 @@ print (f"Esperando por uma mensagem em {host}, {port}")
 sock.bind((host, port))
 max_conexoes = 5
 sock.listen(max_conexoes)
-bloqueados = []
+threads = []
+with open('bloqueados.json', 'r') as arq:
+    bloqueados = json.load(arq)
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
     if msg[0:3] == 'GET': 
         msg = msg[5:29]
-        print(f"Produto de ID {msg[:9]} detectado")
         if str(msg[:9]) == "historico":
             res = GET_historico()
             cliente.send(res)
-        res = do_GET(msg[5:29])
-        cliente.send(res)
+        else:
+            print(f"Produto de ID {msg[:29]} detectado")
+            res = do_GET(msg[:29])
+            cliente.send(res)
     elif msg[0:3] == 'PUT':
         msg = msg.split("\r\n")
         s = msg[-1].replace("\'", "\"")
@@ -155,4 +156,5 @@ while True:
             cliente.close()
     print(f"Conectado a {cliente_end}")
     t1 = threading.Thread(target=connect, args=(cliente,))
+    threads.append(t1)
     t1.start()
