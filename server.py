@@ -45,11 +45,18 @@ def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
 
     return response
 
-# GET
 def get_byid(produto_id:str):
     produto = [p for p in produtos if p['id'] == produto_id]
     return produto[0] if len(produto) > 0 else {}
 
+def GET_historico():
+    with open('compras.json', 'r') as arq:
+        compras = json.load(arq)
+    response_body = json.dumps(compras)
+    return cria_headers(200, "OK", response_body)
+    
+
+# GET
 def do_GET(produto_id:str):
     produto = get_byid(produto_id)
     if produto:
@@ -119,8 +126,12 @@ bloqueados = []
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
-    if msg[0:3] == 'GET':  
-        print(f"Produto de ID {msg[5:29]} detectado")
+    if msg[0:3] == 'GET': 
+        msg = msg[5:29]
+        print(f"Produto de ID {msg[:9]} detectado")
+        if str(msg[:9]) == "historico":
+            res = GET_historico()
+            cliente.send(res)
         res = do_GET(msg[5:29])
         cliente.send(res)
     elif msg[0:3] == 'PUT':
