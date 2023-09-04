@@ -76,19 +76,22 @@ def do_POST(produto):
     return cria_headers(200, "OK", response_body)
 
 # PUT
-def do_PUT(produto: list):
+def do_PUT(produto):
+    p = json.loads(produto)
     produto_novo = {
-        "id": produto['id'],
-        "nome": produto['nome'],
-        "preco": produto['preco'],
-        "estoque": produto['estoque']
+        "id": p['id'],
+        "nome": p['nome'],
+        "preco": p['preco'],
+        "estoque": p['estoque']
     }
-    produto_lista = [p for p in produtos if p['id'] == produto['id']]
+    produto_lista = [i for i in produtos if p['id'] == i['id']]
     if len(produto_lista) > 0:
         produtos.remove(produto_lista[0])
         produtos.append(produto_novo)
     with open('produtos.json', 'w') as arq:
         json.dump(produtos, arq)
+    response_body = json.dumps({"status": "ok"})
+    return cria_headers(200, "OK", response_body)
 
 # DELETE
 def do_DELETE(produto_id:str):
@@ -121,7 +124,9 @@ def connect(cliente):
         res = do_GET(msg[5:29])
         cliente.send(res)
     elif msg[0:3] == 'PUT':
-        res = do_PUT(msg)
+        msg = msg.split("\r\n")
+        s = msg[-1].replace("\'", "\"")
+        res = do_PUT(s)
         cliente.send(res)
     elif msg[0:4] == 'POST':
         res = do_POST(msg[137:])
