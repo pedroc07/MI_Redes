@@ -1,5 +1,5 @@
 FROM python:3.7.9
 
-ADD server.py .
+ADD client.py .
 
-CMD ["python", "./server.py"]
+CMD ["python", "./client.py"]

@@ -3,8 +3,8 @@ import json
 import datetime
 #from leitor import retorna_tags
 # ip público caso não seja a mesma rede
-def client(host = 'localhost', port=8102):
-    '''try:
+def client(host = '172.16.103.3', port=8102):
+    try:
         # LENDO O ID DAS TAGS
         # protocolo TCP
         sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
@@ -23,10 +23,8 @@ def client(host = 'localhost', port=8102):
         print (f"Other exception: {e}") 
     finally:
         print("Tags escaneadas com sucesso")
-        print(tags)
         sock.close()
-'''
-    tags = ["E2000017221100961890544A"]
+
     compras = []
     try: 
         # ENVIANDO TAGS PRO SERVIDOR
@@ -36,7 +34,7 @@ def client(host = 'localhost', port=8102):
             print (f"Conectando ao {host} port {port}\n ") 
             sock.connect((host, port))
             print (f"Enviando {mensagem}\n")
-            mensagem = f"GET /{mensagem} HTTP/1.1\r\nHost: localhost:8102\r\n\r\n"
+            mensagem = f"GET /{mensagem} HTTP/1.1\r\nHost: 172.16.103.3:8102\r\n\r\n"
             sock.send(mensagem.encode('utf-8')) 
             data = sock.recv(2048)
             compra = data.decode('utf-8')
