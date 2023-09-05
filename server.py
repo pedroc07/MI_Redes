@@ -1,18 +1,13 @@
-from pydantic import *
 import json
 from typing import *
 import socket
 import threading
 
-class Produto(BaseModel):
-    id: str 
-    nome: str
-    preco: float
-    estoque: int
-
-
 with open('produtos.json', 'r') as arq:
     produtos = json.load(arq)
+
+with open('bloqueados.json', 'r') as arq:
+    bloqueados = json.load(arq)
 
 def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
     response_protocol = "HTTP/1.1"
@@ -54,6 +49,12 @@ def GET_historico():
     response_body = json.dumps(compras)
     return cria_headers(200, "OK", response_body)
     
+def bloqueia_caixa(caixa):
+    bloqueados.append(caixa)
+    with open('bloqueados.json', 'w') as arq:
+        json.dump(bloqueados, arq)
+    response_body = json.dumps({"status": "ok"})
+    return cria_headers(200, "OK", response_body)
 
 # GET
 def do_GET(produto_id:str):
@@ -111,7 +112,8 @@ def do_DELETE(produto_id:str):
     else:
         return cria_headers(404, "Not Found")
 
-host = socket.gethostbyname(socket.gethostname())
+#host = socket.gethostbyname(socket.gethostname())
+host = "localhost"
 port=8102
 max_dados = 2048 #Máximo de dados recebidos de uma vez
 # protocolo TCP
@@ -121,8 +123,6 @@ sock.bind((host, port))
 max_conexoes = 5
 sock.listen(max_conexoes)
 threads = []
-with open('bloqueados.json', 'r') as arq:
-    bloqueados = json.load(arq)
 
 def connect(cliente):
     msg = cliente.recv(max_dados).decode('utf-8')
@@ -141,7 +141,11 @@ def connect(cliente):
         res = do_PUT(s)
         cliente.send(res)
     elif msg[0:4] == 'POST':
-        res = do_POST(msg[137:])
+        if msg[6:11] == "caixa":
+            cliente_ip = msg[12:].split("/")
+            res = bloqueia_caixa(cliente_ip[0].replace(" HTTP", ""))
+        else:
+            res = do_POST(msg[137:])
         cliente.send(res)
     elif msg[0:6] == 'DELETE':
         res = do_DELETE(msg[8:32])
@@ -152,7 +156,8 @@ def connect(cliente):
 while True:
     cliente, cliente_end = sock.accept()
     for b in bloqueados:
-        if b == cliente_end:
+        print(b, cliente_end)
+        if b == cliente_end[0]:
             cliente.close()
     print(f"Conectado a {cliente_end}")
     t1 = threading.Thread(target=connect, args=(cliente,))
