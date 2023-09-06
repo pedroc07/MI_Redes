@@ -155,7 +155,6 @@ def connect(cliente):
 while True:
     cliente, cliente_end = sock.accept()
     for b in bloqueados:
-        print(b, cliente_end)
         if b == cliente_end[0]:
             cliente.close()
     print(f"Conectado a {cliente_end}")
