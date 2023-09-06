@@ -112,8 +112,7 @@ def do_DELETE(produto_id:str):
     else:
         return cria_headers(404, "Not Found")
 
-#host = socket.gethostbyname(socket.gethostname())
-host = "localhost"
+host = socket.gethostbyname(socket.gethostname())
 port=8102
 max_dados = 2048 #Máximo de dados recebidos de uma vez
 # protocolo TCP

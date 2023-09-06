@@ -9,13 +9,14 @@ def client(host = '172.16.103.3', port=8102):
         # protocolo TCP
         sock = socket.socket(socket.AF_INET,  socket.SOCK_STREAM)
         sock.connect(('172.16.103.0', 8077))
-        print (f"Conectando ao {host} port {8077}\n ")
+        print (f"Conectando ao 172.16.103.0 port {8077}\n ")
         mensagem = "teste"
-        print (f"Enviando {mensagem}")
         sock.send(mensagem.encode('utf-8'))
         data = sock.recv(2048)
         tags = data.decode('utf-8')
         tags = tags.split("/")
+        print(tags)
+        tags.remove("")
     
     except socket.error as e: 
         print (f"Socket error: {e}") 
@@ -48,7 +49,9 @@ def client(host = '172.16.103.3', port=8102):
     finally:
         print ("Fechando  conexão com o servidor...\n") 
         sock.close()
-        print (f"Lista de compras: \n{compras}\n")
+        print (f"Lista de compras: \n")
+        for i in compras[:-1]:
+            print(i)
         confirm = input("Deseja confirmar  compra? S/N ")
         if confirm.upper() == "S":
             # REMOVENDO ITENS DO ESTOQUE
