@@ -56,6 +56,16 @@ def bloqueia_caixa(caixa):
     response_body = json.dumps({"status": "ok"})
     return cria_headers(200, "OK", response_body)
 
+def POST_compra(compra):
+    c = json.loads(compra)
+    with open('compras.json', 'r') as arq:
+        compras_arq = json.load(arq)
+    compras_arq.append(c)
+    with open('compras.json', 'w') as arq:
+        json.dump(compras_arq, arq)
+    response_body = json.dumps({"status": "ok"})
+    return cria_headers(200, "OK", response_body)
+
 # GET
 def do_GET(produto_id:str):
     produto = get_byid(produto_id)
@@ -143,6 +153,10 @@ def connect(cliente):
         if msg[6:11] == "caixa":
             cliente_ip = msg[12:].split("/")
             res = bloqueia_caixa(cliente_ip[0].replace(" HTTP", ""))
+        elif msg[6:16] == 'NovaCompra':
+            msg = msg.split("\r\n")
+            s = msg[-1].replace("\'", "\"")
+            res = POST_compra(s)
         else:
             res = do_POST(msg[137:])
         cliente.send(res)

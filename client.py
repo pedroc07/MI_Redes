@@ -40,8 +40,7 @@ def client(host = '172.16.103.3', port=8102):
             data = sock.recv(2048)
             compra = data.decode('utf-8')
             c = json.loads(compra[105:])
-            compras.append(c)
-            
+            compras.append(c)     
     except socket.error as e: 
         print (f"Socket error: {e}") 
     except Exception as e: 
@@ -50,7 +49,7 @@ def client(host = '172.16.103.3', port=8102):
         print ("Fechando  conexão com o servidor...\n") 
         sock.close()
         print (f"Lista de compras: \n")
-        for i in compras[:-1]:
+        for i in compras:
             print(i)
         confirm = input("Deseja confirmar  compra? S/N ")
         if confirm.upper() == "S":
@@ -66,13 +65,22 @@ def client(host = '172.16.103.3', port=8102):
                 sock.send(mensagem.encode('utf-8')) 
                 data = sock.recv(2048)
             print (f"Compra realizada com sucesso\n")
+            sock.close()
             d = {"data":str(datetime.datetime.now())}
             compras.insert(0, d)
-            with open('compras.json', 'r') as arq:
-                compras_arq = json.load(arq)
-            compras_arq.append(compras)
-            with open('compras.json', 'w') as arq:
-                json.dump(compras_arq, arq)
+            #with open('compras.json', 'r') as arq:
+            #    compras_arq = json.load(arq)
+            #compras_arq.append(compras)
+            response_body = json.dumps(compras)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+            print (f"Conectando ao {host} port {port}\n ") 
+            sock.connect((host, port))
+            print (f"Enviando {mensagem}\n")
+            mensagem = f"POST /NovaCompra HTTP/1.1\r\nHost: 172.16.103.3:8102\r\n\r\n" +  response_body
+            sock.send(mensagem.encode('utf-8')) 
+            data = sock.recv(2048)
+            print (f"Compra registrada no sistema\n")
+        sock.close()
 
 sair = False
 while not sair:
