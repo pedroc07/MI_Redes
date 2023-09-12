@@ -72,6 +72,7 @@ def client(host = '172.16.103.3', port=8102):
             #    compras_arq = json.load(arq)
             #compras_arq.append(compras)
             response_body = json.dumps(compras)
+            # REGISTRANDO COMPRA
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
             print (f"Conectando ao {host} port {port}\n ") 
             sock.connect((host, port))
