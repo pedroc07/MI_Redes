@@ -17,15 +17,11 @@ def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
     response_connection = "close"
     message_body_bytes = msg.encode('utf-8')
     response_content_length = len(message_body_bytes)
-
-    # Create seções
     status_line = f"{response_protocol} {response_status_code} {response_status_text}\r\n"
     connection = f"Connection: {response_connection}\r\n"
     content_type = f"Content-Type: {response_content_type}\r\n"
     content_length = f"Content-Length: {response_content_length}\r\n"
     empty_line = "\r\n"
-
-    # Concatenar string
     response_header = (
         status_line +
         connection +
@@ -35,9 +31,9 @@ def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
     )
 
     # Concatenar header e corpo da mensagem
-    response = response_header.encode('utf-8') + message_body_bytes
+    res = response_header.encode('utf-8') + message_body_bytes
 
-    return response
+    return res
 
 def get_byid(produto_id:str):
     produto = [p for p in produtos if p['id'] == produto_id]
