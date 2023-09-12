@@ -30,7 +30,6 @@ def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
         empty_line
     )
 
-    # Concatenar header e corpo da mensagem
     res = response_header.encode('utf-8') + message_body_bytes
 
     return res
