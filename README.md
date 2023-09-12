@@ -48,7 +48,7 @@ vés do protocolo no modelo de API REST. O uso de multithreading também foi vis
 como necessário para implementação correta do problema, visto que a intenção era que o
 servidor atendesse a múltiplos clientes simultaneamente.
 
-<img width = '50' height = '50'src="figura1.png" />
+<img width = '50' height = '50'src="/figura1.png" />
 
 Várias implementações corretas são possíveis para a resolução do problema, po-
 rém optei em fazer da seguinte forma: a thread principal apenas aguarda por novas co-
