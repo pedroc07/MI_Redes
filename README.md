@@ -1,4 +1,4 @@
-1. Introdução
+### 1. Introdução
 
 A ideia de um supermercado completamente automatizado sem filas ou funcionários pa-
 rece tão distante quanto atrativa para a maioria das pessoas, porém o uso desse tipo de
@@ -18,7 +18,7 @@ mente quando o cliente se aproxima do sensor com as compras que então calcula o
 
 total dos produtos e executa a atualização dos itens automaticamente no estoque assim
 facilitando e acelerando o processo.
-2. Fundamentação Teórica
+### 2. Fundamentação Teórica
 Para solucionar o problema foi implementado um sistema de redes cliente-servidor através
 
 da linguagem de programação Python no qual um servidor abriga as informações referen-
@@ -33,7 +33,7 @@ se conecta ao cliente também em um modelo cliente-servidor. Adicionalmente, foi
 um conjunto de tags RFID UHF, um módulo de interface serial mini USB (CH340G) da
 SparkFun com cabo serial mini USB e um Raspberry Pi Zero W.
 
-3. Metodologia, Implementação e Testes
+### 3. Metodologia, Implementação e Testes
 Almejando solucionar o problema, o grupo decidiu que o cliente deveria poder executar
 as operaçöes principais de uma API REST (GET, PUT, POST e DELETE) através de uma
 conexão com o servidor. Essa conexão seria feita através de sockets (pontos de conexão)
@@ -47,6 +47,8 @@ vés do protocolo no modelo de API REST. O uso de multithreading também foi vis
 
 como necessário para implementação correta do problema, visto que a intenção era que o
 servidor atendesse a múltiplos clientes simultaneamente.
+
+<img width = '50' height = '50'src="" />
 
 Várias implementações corretas são possíveis para a resolução do problema, po-
 rém optei em fazer da seguinte forma: a thread principal apenas aguarda por novas co-
@@ -67,7 +69,7 @@ Para reduzir os itens no estoque, o cliente envia chamadas PUT para o servidor,
 editando apenas o número de itens no estoque. Por fim, a compra é registrada na memória
 através de uma conexão POST com o servidor que envia os itens comprados e a data da
 compra.
-4. Resultados e Discussões
+### 4. Resultados e Discussões
 O desenvolvimento do sistema foi feito seguindo a metodologia descrita na Seção 3 e
 apresenta êxito em todas as suas funcionalidades conforme foi testado. Desde o início do
 desenvolvimento, realizei testes no sistema, inicialmente em uma máquina e depois em
@@ -80,7 +82,7 @@ dos os seus atores conseguem se comunicar e transmitir as informações de forma
 além de tratar corretamente a concorrência entre diferentes máquinas através do multith-
 reading e atender a todas as metas e requisitos propostos.
 
-5. Conclusão
+### 5. Conclusão
 
 O solucionamento do problema correu bem e os resultados esperados foram atingidos, evi-
 denciando a viabilidade de um sistema de supermercado automatizado e sua eficiência em
