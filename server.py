@@ -10,6 +10,7 @@ with open('bloqueados.json', 'r') as arq:
     bloqueados = json.load(arq)
 
 def cria_headers(status_code: int, status_text: str, msg="") -> bytes:
+    # CRIA HEADERS PARA A RESPOSTA ENVIADA AO CLIENTE
     response_protocol = "HTTP/1.1"
     response_status_code = status_code
     response_status_text = status_text
